@@ -1,0 +1,8 @@
+steps:
+  - task: AzureCLI@2
+    displayName: 'Blob Storage Report Upload'
+    inputs:
+      azureSubscription: 'orphan-automate'
+      scriptType: 'batch'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az storage azcopy blob upload -c orphanblob --account-name orphanstorageacc --account-key CpqoYK/IZ6jCbT/rIjqCRCmveyF0YydB9/0H4xGWzt1m6pDSB/Q82lEzV1efWaXc57z3/z82EFK4+AStC7/gTw== -s "./report/*" --recursive'

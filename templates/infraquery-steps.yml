@@ -1,0 +1,8 @@
+steps:
+  - task: AzurePowerShell@5
+    displayName: 'Initialize Report For Infrastucture Subscription'
+    inputs:
+      azureSubscription: 'Infrastucture'
+      ScriptType: 'FilePath'
+      ScriptPath: 'master.ps1'
+      azurePowerShellVersion: 'LatestVersion'

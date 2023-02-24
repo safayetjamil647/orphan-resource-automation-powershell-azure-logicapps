@@ -1,0 +1,8 @@
+steps:
+  - task: AzurePowerShell@5
+    displayName: 'Initialize Report For QA Subscription'
+    inputs:
+      azureSubscription: 'qa'
+      ScriptType: 'FilePath'
+      ScriptPath: 'master.ps1'
+      azurePowerShellVersion: 'LatestVersion'

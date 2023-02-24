@@ -1,0 +1,8 @@
+steps:
+  - task: AzurePowerShell@5
+    displayName: 'Initialize Report For Enterprise Subscription'
+    inputs:
+      azureSubscription: 'enterprise'
+      ScriptType: 'FilePath'
+      ScriptPath: 'master.ps1'
+      azurePowerShellVersion: 'LatestVersion'

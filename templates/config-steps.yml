@@ -1,0 +1,8 @@
+steps:
+  - task: AzureCLI@2
+    displayName: 'Set Az Config'
+    inputs:
+      azureSubscription: 'orphan-automate'
+      scriptType: 'batch'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az config set extension.use_dynamic_install=yes_without_prompt'

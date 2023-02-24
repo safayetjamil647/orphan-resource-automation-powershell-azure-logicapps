@@ -1,0 +1,8 @@
+steps:
+  - task: AzurePowerShell@5
+    displayName: 'Initialize Report For Dev Subscription'
+    inputs:
+      azureSubscription: 'orphan-automate'
+      ScriptType: 'FilePath'
+      ScriptPath: 'master.ps1'
+      azurePowerShellVersion: 'LatestVersion' 

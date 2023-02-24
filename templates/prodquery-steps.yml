@@ -1,0 +1,8 @@
+steps:
+  - task: AzurePowerShell@5
+    displayName: 'Initialize Report For Prod Subscription'
+    inputs:
+      azureSubscription: 'prod-service'
+      ScriptType: 'FilePath'
+      ScriptPath: 'master.ps1'
+      azurePowerShellVersion: 'LatestVersion'

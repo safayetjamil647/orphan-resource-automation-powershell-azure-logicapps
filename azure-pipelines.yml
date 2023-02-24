@@ -1,0 +1,100 @@
+trigger:
+- master
+schedules:
+  - cron: "59 11 7 * *"
+    displayName: Monthly build and execution'
+    branches:
+      include:
+      - master
+    always: true  
+pool:
+    vmImage: windows-latest
+variables:
+  - name: azrUser
+    value: $(AZURE_USER)
+  - name: azrPassword
+    value: $(AZURE_PASSWORD)
+  - name: azrTenant
+    value: $(AZURE_TENANT)
+jobs:
+- job: DeployLogicApp
+  steps:
+  - template: templates/config-steps.yml
+  
+  - task: AzureCLI@2
+    displayName: 'Deploy Logic App'
+    inputs:
+      azureSubscription: 'orphan-automate'
+      scriptType: 'batch'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az logic workflow create --resource-group "find-orphan-rg" --location "eastus" --name "orphanLogicApp" --definition "logicAppDefinition.json"'
+  - powershell: |
+      Start-Sleep -Seconds 5  
+    displayName: 'Delay for execution'
+
+- job: DevTestSubscriptionQueryAndUpload
+  dependsOn: DeployLogicApp
+  steps:
+  - template: templates/config-steps.yml
+  
+  - template: templates/devquery-steps.yml 
+  
+  - template: templates/blob-steps.yml  
+  - powershell: |
+      Start-Sleep -Seconds 5  
+    
+
+- job: ProdSubscriptionQueryAndUpload
+  dependsOn: DevTestSubscriptionQueryAndUpload
+  steps:
+  - template: templates/config-steps.yml
+  
+  - template: templates/prodquery-steps.yml 
+  
+  - template: templates/blob-steps.yml
+  - powershell: |
+      Start-Sleep -Seconds 5 
+
+- job: QaSubscriptionQueryAndUpload
+  dependsOn: ProdSubscriptionQueryAndUpload
+  steps:
+  - template: templates/config-steps.yml
+  
+  - template: templates/qaquery-steps.yml 
+  
+  - template: templates/blob-steps.yml
+  - powershell: |
+      Start-Sleep -Seconds 5 
+
+- job: EnterpriseSubscriptionQueryAndUpload
+  dependsOn: QaSubscriptionQueryAndUpload
+  steps:
+  - template: templates/config-steps.yml
+  
+  - template: templates/enterprisequery-steps.yml 
+  
+  - template: templates/blob-steps.yml
+  - powershell: |
+      Start-Sleep -Seconds 5
+  
+- job: InfrastructureSubscriptionQueryAndUpload
+  dependsOn: EnterpriseSubscriptionQueryAndUpload
+  steps:
+  - template: templates/config-steps.yml
+  
+  - template: templates/enterprisequery-steps.yml 
+  
+  - template: templates/blob-steps.yml
+  - powershell: |
+      Start-Sleep -Seconds 5
+
+- job: DestroyLogicApp
+  dependsOn: InfrastructureSubscriptionQueryAndUpload
+  steps:
+  - task: AzurePowerShell@5
+    displayName: 'Logic App Destroy'
+    inputs:
+      azureSubscription: 'Development & Testing(f1ebd7ba-56dc-4f06-a87f-ca51730c98d1)'
+      scriptType: 'InlineScript'
+      Inline: 'Remove-AzLogicApp -ResourceGroupName "find-orphan-rg" -Name "orphanLogicApp" -Force'
+      azurePowerShellVersion: 'LatestVersion'
